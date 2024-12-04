@@ -34,7 +34,13 @@ int main()
     for (int i = 0; i < col1.size(); ++i) {
         diff_sum+=abs(col1[i] - col2[i]);
     }
-
     cout << "Sum of Diffs: " << diff_sum << endl;
+
+    int count_sum = 0;
+    for (int col1n : col1) {
+        count_sum += (col1n * count(col2.begin(), col2.end(), col1n));
+    }
+    cout << "Sum of Counts: " << count_sum << endl;
+
     return 0;
 }
