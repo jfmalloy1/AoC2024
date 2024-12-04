@@ -36,6 +36,7 @@ int main()
     }
     cout << "Sum of Diffs: " << diff_sum << endl;
 
+    // Find number of occurrances in col2 list using the count() method in algorithms.h
     int count_sum = 0;
     for (int col1n : col1) {
         count_sum += (col1n * count(col2.begin(), col2.end(), col1n));
