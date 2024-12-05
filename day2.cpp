@@ -3,8 +3,90 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
+#include <vector>
 
 using namespace std;
+
+vector<int> checkStr(const std::vector<int> &l)
+{
+    stringstream ss;
+    int prev = -1;
+    bool increase = true;
+    // Returns two numbers - success code (1 if success, 0 otherwise), and error position (0, 1, 2, etc...)
+    int count = 0;
+    bool success = true;
+    for (int n: l) {
+        // Set up first number
+        if (prev == -1)
+        {
+            prev = n;
+            ++count;
+        }
+        else
+        {
+            cout << "Comparing: " << prev << " to " << n << endl;
+            if (n < prev && count == 1)
+            {
+                increase = false;
+            }
+            if (increase)
+            {
+                if (n < prev)
+                {
+                    success = false;
+                    cout << "Failed due to increase, n < prev" << endl;
+                    break;
+                }
+                else if (n - prev > 3)
+                {
+                    success = false;
+                    cout << "Failed due to increase, n-prev>3" << endl;
+                    break;
+                }
+                else if (prev == n)
+                {
+                    success = false;
+                    cout << "Failed due to equality, n==prev" << endl;
+                    break;
+                }
+            }
+            else
+            {
+                if (n > prev)
+                {
+                    success = false;
+                    cout << "Failed due to decrease, n > prev" << endl;
+                    break;
+                }
+                else if (prev - n > 3)
+                {
+                    success = false;
+                    cout << "Failed due to decrease, prev-n>3" << endl;
+                    break;
+                }
+                else if (prev == n)
+                {
+                    success = false;
+                    cout << "Failed due to equality, n==prev" << endl;
+                    break;
+                }
+            }
+            ++count;
+        }
+        prev = n;
+    }
+    vector<int> values;
+    // Return 1, -1 for success
+    if (success) {
+        values.push_back(1);
+        values.push_back(-1);
+    } else {
+        // Return 0 and the offending position for failures
+        values.push_back(0);
+        values.push_back(count);
+    }
+    return values;
+}
 
 int main() {
     // Read in file
@@ -13,81 +95,44 @@ int main() {
 
     // Counter for all successes
     int success_counter = 0;
-    
-    
-    while (getline(file, str)) {
+
+
+    while (getline(file, str))
+    {
+        cout << str << endl;
+
         // Individual check for success
         bool success = true;
-        cout << str << endl;
+        // Stringstream to hold separated line
         stringstream ss(str);
+        // List to hold ints
+        vector<int> l;
+        // Individual strings holding ints
         string s;
-        // Previous number (set to 0 by default)
-        int prev = -1;
-        int count = 0;
-        bool increase = true;
-        
-        while (getline(ss, s, ' ')) {
-            int n = stoi(s);
+        int tolerance = 0;
 
-            // Set up first number
-            if (prev == -1) {
-                prev = n;
-                ++count;
+        while(getline(ss, s, ' ')) {
+            l.push_back(stoi(s));
+        }
+
+        while (tolerance < 2) {
+
+            vector<int> status = checkStr(l);
+            cout << status[0] << " " << status[1] << endl;
+            // If status == 1, it was successful and therefore breaks out of loop
+            if (status[0])
+            {
+                ++success_counter;
+                break;
             }
+            // Otherwise, add one to tolerance and try again by removing the offending position
             else {
-                cout << "Comparing: " << prev << " to " << n << endl;
-                if (n < prev && count == 1) {
-                    increase = false;
-                }
-                if (increase) {
-                    if (n < prev) {
-                        success = false;
-                        cout << "Failed due to increase, n < prev" << endl;
-                        break;
-                    }
-                    else if (n - prev > 3) {
-                        success = false;
-                        cout << "Failed due to increase, n-prev>3" << endl;
-                        break;
-                    }
-                    else if (prev == n) {
-                        success = false;
-                        cout << "Failed due to equality, n==prev" << endl;
-                        break;
-                    }
-                }
-                else {
-                    if (n > prev)
-                    {
-                        success = false;
-                        cout << "Failed due to decrease, n > prev" << endl;
-                        break;
-                    }
-                    else if (prev - n > 3)
-                    {
-                        success = false;
-                        cout << "Failed due to decrase, prev-n>3" << endl;
-                        break;
-                    }
-                    else if (prev == n)
-                    {
-                        success = false;
-                        cout << "Failed due to equality, n==prev" << endl;
-                        break;
-                    }
-                }
-                ++count;
+                ++tolerance;
+                l.erase(l.begin() + status[1]);
             }
-            prev = n;
-
-
-            
         }
-        cout << "Increase? " << increase << endl;
-        cout << "Success? " << success << endl;
-        if (success) {
-            ++success_counter;
-        }
+        
+
     }
     cout << "Total Successes: " << success_counter << endl;
 
