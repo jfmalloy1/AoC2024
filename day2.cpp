@@ -110,26 +110,46 @@ int main() {
         // Individual strings holding ints
         string s;
         int tolerance = 0;
+        int tolerance_limit = 2;
 
         while(getline(ss, s, ' ')) {
             l.push_back(stoi(s));
         }
 
-        while (tolerance < 2) {
+        vector<int> status = checkStr(l);
+        cout << status[0] << " " << status[1] << endl;
+        // If status == 1, it was successful and therefore breaks out of loop
+        if (status[0])
+        {
+            ++success_counter;
+        }
+        // Otherwise, try i, i-1, i-2 and see if any of those fail - if not, add to success
+        else {
+            vector<int> l_copy;
+            copy(l.begin(), l.end(), back_inserter(l_copy));
 
-            vector<int> status = checkStr(l);
-            cout << status[0] << " " << status[1] << endl;
-            // If status == 1, it was successful and therefore breaks out of loop
-            if (status[0])
+            // Take away i (initial failure point)
+            l_copy.erase(l_copy.begin() + status[1]);
+            vector<int> status_v1 = checkStr(l_copy);
+
+            // Take away i-1, if possible
+            copy(l.begin(), l.end(), back_inserter(l_copy));
+            l_copy.erase(l_copy.begin() + status[1]-1);
+            vector<int> status_v2 = checkStr(l_copy);
+
+            // Take away -2, if possible
+            vector<int> status_v3;
+            if (status[1] - 2 >= 0)
             {
+                copy(l.begin(), l.end(), back_inserter(l_copy));
+                l_copy.erase(l_copy.begin() + status[1] - 2);
+                status_v3 = checkStr(l_copy);
+            }
+
+            if (status_v1[0] && status_v2[0] && status_v3[0]) {
                 ++success_counter;
-                break;
             }
-            // Otherwise, add one to tolerance and try again by removing the offending position
-            else {
-                ++tolerance;
-                l.erase(l.begin() + status[1]);
-            }
+            
         }
         
 
